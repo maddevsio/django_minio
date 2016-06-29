@@ -18,18 +18,6 @@ MINIO_SERVER = 'your_minio_server_address'
 MINIO_ACCESSKEY = 'your_minio_server_access_key'
 MINIO_SECRET = 'your_minio_server_secret_key'
 MINIO_BUCKET = 'my_bucket'
+DEFAULT_FILE_STORAGE = 'django_minio.storage.MinioStorage'
 ```
 Demo minio server and it's credentials can be found at [Python Client Quickstart Guide](https://docs.minio.io/docs/python-client-api-reference).
-
-Usage
------
-Add `storage` attribute to your ImageField:
-```
-from django_minio.storage import MinioStorage
-
-photo = models.ImageField(upload_to='photos/', storage=MinioStorage())
-```
-Run migrations.
-
-So the uploaded file will be loaded the `photos` directory in your project's MEDIA directory. Then in your Minio
-server's bucket will be created same directory `photos` and the file will be loaded there.
