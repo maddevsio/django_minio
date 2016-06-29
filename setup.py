@@ -30,7 +30,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='minio storage files',
-    install_requires=['django>=1.7,<1.8', 'minio'],
+    install_requires=['django>=1.7,<1.9', 'minio'],
     extras_require={
         'dev': ['wheel', 'twine'],
     },
