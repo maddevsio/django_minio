@@ -4,11 +4,6 @@ from minio import Minio
 from minio.error import ResponseError
 from django.conf import settings
 
-# # Initialize minioClient with an endpoint and access/secret keys.
-# minioClient = Minio('play.minio.io:9000',
-#                     access_key='Q3AM3UQ867SPQQA43P2F',
-#                     secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
-#                     secure=True)
 
 minioClient = Minio(settings.MINIO_SERVER,
                     access_key=settings.MINIO_ACCESSKEY,
