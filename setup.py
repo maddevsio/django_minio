@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django_minio',
-    version='0.2',
+    version='0.3',
     packages=find_packages(),
     include_package_data=True,
     license='MIT',
@@ -30,8 +30,14 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='minio storage files',
-    install_requires=['django>=1.7,<1.9', 'minio'],
+    install_requires=[
+        'Django >= 1.7, <1.9',
+        'minio',
+    ],
     extras_require={
-        'dev': ['wheel', 'twine'],
+        'dev': [
+            'wheel',
+            'twine'
+        ],
     },
 )
