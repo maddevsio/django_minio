@@ -9,13 +9,13 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django_minio',
-    version='0.5',
+    version='0.6',
     packages=find_packages(),
     include_package_data=True,
     license='MIT',
     description='Django app to use Minio Server as file storage.',
     long_description=README,
-    url='https://www.example.com/',
+    url='https://github.com/shapoglyk/django_minio',
     author='Belek Abylov',
     author_email='abylov.belek@gmail.com',
     classifiers=[
