@@ -17,6 +17,7 @@ MINIO_SERVER = 'your_minio_server_address'
 MINIO_ACCESSKEY = 'your_minio_server_access_key'
 MINIO_SECRET = 'your_minio_server_secret_key'
 MINIO_BUCKET = 'my_bucket'
+MINIO_SECURE = True
 DEFAULT_FILE_STORAGE = 'django_minio.storage.MinioStorage'
 ```
 Demo minio server and it's credentials can be found at [Python Client Quickstart Guide](https://docs.minio.io/docs/python-client-api-reference).
