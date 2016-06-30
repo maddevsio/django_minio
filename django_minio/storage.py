@@ -1,9 +1,10 @@
-import sys
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
 from django.conf import settings
 import mimetypes
+
+from minio.error import ResponseError
 
 
 def setting(name, default=None):
@@ -31,12 +32,16 @@ class MinioStorage(Storage):
         if self._connection is None:
             self._connection = Minio(
                 self.server, self.access_key, self.secret_key, self.secure)
-        self._connection.trace_on(sys.stdout)
+        # self._connection.trace_on(sys.stdout)
         return self._connection
 
     def _bucket_has_object(self, name):
-        # temporary returning always False
-        return False
+        try:
+            self.connection.get_object(self.bucket, name)
+            return True
+        except ResponseError:
+            # Exception rises when file not found.
+            return False
 
     def _save(self, name, content):
         if hasattr(content.file, 'content_type'):
