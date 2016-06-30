@@ -20,7 +20,7 @@ class MinioStorage(Storage):
     access_key = setting('MINIO_ACCESSKEY')
     secret_key = setting('MINIO_SECRET')
     bucket = setting('MINIO_BUCKET')
-    secure = True
+    secure = setting('MINIO_SECURE')
 
     def __init__(self, *args, **kwargs):
         super(MinioStorage, self).__init__(*args, **kwargs)
@@ -39,20 +39,10 @@ class MinioStorage(Storage):
         return False
 
     def _save(self, name, content):
-
-        print('SAVE BEGIN', name, content)
-        print('name: ', name)
-        print('content:', content)
         if hasattr(content.file, 'content_type'):
             content_type = content.file.content_type
         else:
             content_type = mimetypes.guess_type(name)[0]
-
-        # if hasattr(content, 'chunks'):
-        #     content_data = b''.join(chunk for chunk in content.chunks())
-        # else:
-        #     content_data = content.read()
-        print('content.file.size: ', content.file.size)
         self.connection.put_object(self.bucket, name, content, content.file.size, content_type=content_type)
         return name
 
