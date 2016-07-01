@@ -1,10 +1,11 @@
+import mimetypes
+import os
+
+from django.conf import settings
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
-from django.conf import settings
-import mimetypes
-
-from minio.error import ResponseError
+from minio.error import ResponseError, InvalidXMLError
 
 
 def setting(name, default=None):
@@ -44,12 +45,18 @@ class MinioStorage(Storage):
             return False
 
     def _save(self, name, content):
+        pathname, ext = os.path.splitext(name)
+        dir_path, file_name = os.path.split(pathname)
+        hashed_name = "{0}/{1}{2}".format(dir_path, hash(content), ext)
         if hasattr(content.file, 'content_type'):
             content_type = content.file.content_type
         else:
             content_type = mimetypes.guess_type(name)[0]
-        self.connection.put_object(self.bucket, name, content, content.file.size, content_type=content_type)
-        return name
+        try:
+            self.connection.put_object(self.bucket, hashed_name, content, content.file.size, content_type=content_type)
+        except InvalidXMLError as err:
+            print(err)
+        return hashed_name
 
     def url(self, name):
         if self.connection.bucket_exists(self.bucket):
@@ -58,4 +65,5 @@ class MinioStorage(Storage):
             return "{}/{}".format(setting('MEDIA_URL'), name)
 
     def exists(self, name):
+        print(name)
         return self._bucket_has_object(name)
