@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import mimetypes
 import os
 
@@ -6,6 +7,7 @@ from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
 from minio.error import ResponseError, InvalidXMLError
+from urllib3.exceptions import MaxRetryError
 
 
 def setting(name, default=None):
@@ -31,6 +33,7 @@ class MinioStorage(Storage):
     @property
     def connection(self):
         if self._connection is None:
+            print('construct')
             self._connection = Minio(
                 self.server, self.access_key, self.secret_key, self.secure)
         # self._connection.trace_on(sys.stdout)
@@ -40,7 +43,7 @@ class MinioStorage(Storage):
         try:
             self.connection.get_object(self.bucket, name)
             return True
-        except ResponseError:
+        except (ResponseError, MaxRetryError) as err:
             # Exception rises when file not found.
             return False
 
@@ -56,14 +59,18 @@ class MinioStorage(Storage):
             self.connection.put_object(self.bucket, hashed_name, content, content.file.size, content_type=content_type)
         except InvalidXMLError as err:
             print(err)
+        except MaxRetryError:
+            pass
         return hashed_name
 
     def url(self, name):
-        if self.connection.bucket_exists(self.bucket):
-            return self.connection.presigned_get_object(self.bucket, name)
-        else:
-            return "{}/{}".format(setting('MEDIA_URL'), name)
+        try:
+            if self.connection.bucket_exists(self.bucket):
+                return self.connection.presigned_get_object(self.bucket, name)
+            else:
+                return "image_not_found"
+        except MaxRetryError:
+            return "image_not_found"
 
     def exists(self, name):
-        print(name)
         return self._bucket_has_object(name)
