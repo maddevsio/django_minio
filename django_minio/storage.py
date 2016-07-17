@@ -83,3 +83,7 @@ class MinioStorage(Storage):
 
     def exists(self, name):
         return self._bucket_has_object(name)
+
+    def size(self, name):
+        info = self.connection.stat_object(self.bucket, name)
+        return info.size
