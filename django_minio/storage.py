@@ -62,6 +62,8 @@ class MinioStorage(Storage):
         else:
             content_type = mimetypes.guess_type(name)[0]
         if self.connection is not None:
+            if not self.connection.bucket_exists(self.bucket):
+                self.connection.make_bucket(self.bucket)
             try:
                 self.connection.put_object(self.bucket, hashed_name, content, content.file.size, content_type=content_type)
             except InvalidXMLError as err:

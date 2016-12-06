@@ -22,7 +22,7 @@ DEFAULT_FILE_STORAGE = 'django_minio.storage.MinioStorage'
 ```
 Demo minio server and it's credentials can be found at [Python Client Quickstart Guide](https://docs.minio.io/docs/python-client-api-reference).
 
-If you want to use this module only at production server, include above settnings only in production settings.
+If you want to use this module only at production server, include above settings only in production settings.
 So at local developer machine you will use django's default file storage.
 
 More information about file storages can be found at [Django Docs](https://docs.djangoproject.com/en/1.8/ref/files/storage/).
