@@ -4,7 +4,7 @@ Django app to use [Minio Server](https://github.com/minio/minio) as file storage
 
 Intallation
 -----------
-At first, you need to have working minio server. How to do that you can found at [Minio Quickstart Guide](https://docs.minio.io/docs/minio).
+At first, you need to have working minio server. How to do that you can found at [Minio Quickstart Guide](http://docs.minio.io/docs/minio-quickstart-guide).
 
 Install Django Minio Storage from pip:
 ```
