@@ -45,7 +45,7 @@ class MinioStorage(Storage):
     def _bucket_has_object(self, name):
         if self.connection is not None:
             try:
-                self.connection.get_object(self.bucket, name)
+                self.connection.get_object(self.bucket, name.encode('utf8'))
                 return True
             except (ResponseError, MaxRetryError) as err:
                 # ResponseError rises when file not found.
