@@ -20,7 +20,7 @@ def setting(name, default=None):
 
 @deconstructible
 class MinioStorage(Storage):
-    # TODO: Figure out how properly work with all exceptions which are raises bellow.
+    # TODO: Log errors caused by exceptions
     server = setting('MINIO_SERVER')
     access_key = setting('MINIO_ACCESSKEY')
     secret_key = setting('MINIO_SECRET')
@@ -33,21 +33,21 @@ class MinioStorage(Storage):
 
     @property
     def connection(self):
-        if self._connection is None:
+        if not self._connection:
             try:
                 self._connection = Minio(
                     self.server, self.access_key, self.secret_key, self.secure)
             except InvalidEndpointError:
                 self._connection = None
-        # self._connection.trace_on(sys.stdout)
         return self._connection
 
     def _bucket_has_object(self, name):
-        if self.connection is not None:
+        if self.connection:
             try:
+                # TODO: Check for file by hashed name, not original
                 self.connection.get_object(self.bucket, name.encode('utf8'))
                 return True
-            except (ResponseError, MaxRetryError) as err:
+            except (ResponseError, MaxRetryError):
                 # ResponseError rises when file not found.
                 # MaxRetryError rises when service is not available.
                 pass
@@ -61,24 +61,26 @@ class MinioStorage(Storage):
             content_type = content.file.content_type
         else:
             content_type = mimetypes.guess_type(name)[0]
-        if self.connection is not None:
+        if self.connection:
             if not self.connection.bucket_exists(self.bucket):
                 self.connection.make_bucket(self.bucket)
             try:
-                self.connection.put_object(self.bucket, hashed_name, content, content.file.size, content_type=content_type)
-            except InvalidXMLError as err:
+                self.connection.put_object(
+                    self.bucket, hashed_name, content, content.file.size, content_type=content_type
+                )
+            except InvalidXMLError:
                 pass
             except MaxRetryError:
                 pass
-        return hashed_name
+        return hashed_name  # TODO: Do not return name if saving was unsuccessful
 
     def url(self, name):
-        if self.connection is not None:
+        if self.connection:
             try:
                 if self.connection.bucket_exists(self.bucket):
                     return self.connection.presigned_get_object(self.bucket, name)
                 else:
-                    return "image_not_found"
+                    return "image_not_found"  # TODO: Find a better way of returning errors
             except MaxRetryError:
                 return "image_not_found"
         return "could_not_establish_connection"
