@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
-from minio.error import ResponseError, InvalidXMLError, InvalidEndpointError
+from minio.error import InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
 from urllib3.exceptions import MaxRetryError
 
 
@@ -41,18 +41,6 @@ class MinioStorage(Storage):
                 self._connection = None
         return self._connection
 
-    def _bucket_has_object(self, name):
-        if self.connection:
-            try:
-                # TODO: Check for file by hashed name, not original
-                self.connection.get_object(self.bucket, name.encode('utf8'))
-                return True
-            except (ResponseError, MaxRetryError):
-                # ResponseError rises when file not found.
-                # MaxRetryError rises when service is not available.
-                pass
-        return False
-
     def _save(self, name, content):
         pathname, ext = os.path.splitext(name)
         dir_path, file_name = os.path.split(pathname)
@@ -86,7 +74,13 @@ class MinioStorage(Storage):
         return "could_not_establish_connection"
 
     def exists(self, name):
-        return self._bucket_has_object(name)
+        try:
+            self.connection.stat_object(self.bucket, name)
+            return True
+        except (NoSuchKey, NoSuchBucket):
+            return False
+        except Exception as err:
+            raise IOError("Could not stat file {0} {1}".format(name, err))
 
     def size(self, name):
         info = self.connection.stat_object(self.bucket, name)
