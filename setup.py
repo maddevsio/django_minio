@@ -32,7 +32,7 @@ setup(
     keywords='minio storage files',
     install_requires=[
         'Django >= 1.7, <1.9',
-        'minio',
+        'minio == 2.1.0',
     ],
     extras_require={
         'dev': [
