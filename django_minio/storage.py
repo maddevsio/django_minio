@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
-from minio.error import ResponseError, InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
+from minio.error import InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
 from urllib3.exceptions import MaxRetryError
 
 
