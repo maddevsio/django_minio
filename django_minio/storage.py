@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
-from minio.error import InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
+from minio.error import ResponseError, InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
 from urllib3.exceptions import MaxRetryError
 
 
@@ -42,13 +42,13 @@ class MinioStorage(Storage):
         return self._connection
 
     def _save(self, name, content):
-        pathname, ext = os.path.splitext(name)
+        pathname, ext = os.path.splitext(str(name.encode('utf-8')))
         dir_path, file_name = os.path.split(pathname)
         hashed_name = "{0}/{1}{2}".format(dir_path, hash(content), ext)
         if hasattr(content.file, 'content_type'):
             content_type = content.file.content_type
         else:
-            content_type = mimetypes.guess_type(name)[0]
+            content_type = mimetypes.guess_type(name.encode('utf-8'))[0]
         if self.connection:
             if not self.connection.bucket_exists(self.bucket):
                 self.connection.make_bucket(self.bucket)
@@ -66,7 +66,7 @@ class MinioStorage(Storage):
         if self.connection:
             try:
                 if self.connection.bucket_exists(self.bucket):
-                    return self.connection.presigned_get_object(self.bucket, name)
+                    return self.connection.presigned_get_object(self.bucket, name.encode('utf-8'))
                 else:
                     return "image_not_found"  # TODO: Find a better way of returning errors
             except MaxRetryError:
@@ -75,7 +75,7 @@ class MinioStorage(Storage):
 
     def exists(self, name):
         try:
-            self.connection.stat_object(self.bucket, name)
+            self.connection.stat_object(self.bucket, name.encode('utf-8'))
             return True
         except (NoSuchKey, NoSuchBucket):
             return False
@@ -83,5 +83,5 @@ class MinioStorage(Storage):
             raise IOError("Could not stat file {0} {1}".format(name, err))
 
     def size(self, name):
-        info = self.connection.stat_object(self.bucket, name)
+        info = self.connection.stat_object(self.bucket, name.encode('utf-8'))
         return info.size
