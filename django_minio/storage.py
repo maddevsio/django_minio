@@ -45,8 +45,8 @@ class MinioStorage(Storage):
         pathname, ext = os.path.splitext(str(name.encode('utf-8')))
         dir_path, file_name = os.path.split(pathname)
         hashed_name = "{0}/{1}{2}".format(dir_path, hash(content), ext)
-        if hasattr(content.file, 'content_type'):
-            content_type = content.file.content_type
+        if hasattr(content, 'content_type'):
+            content_type = content.content_type
         else:
             content_type = mimetypes.guess_type(name.encode('utf-8'))[0]
         if self.connection:
@@ -54,7 +54,7 @@ class MinioStorage(Storage):
                 self.connection.make_bucket(self.bucket)
             try:
                 self.connection.put_object(
-                    self.bucket, hashed_name, content, content.file.size, content_type=content_type
+                    self.bucket, hashed_name, content, content.size, content_type=content_type
                 )
             except InvalidXMLError:
                 pass
