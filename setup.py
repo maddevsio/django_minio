@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django_minio',
-    version='1.8',
+    version='1.11',
     packages=find_packages(),
     include_package_data=True,
     license='MIT',
@@ -20,18 +20,16 @@ setup(
     author_email='abylov.belek@gmail.com',
     classifiers=[
         'Environment :: Web Environment',
-        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.11.20',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='minio storage files',
     install_requires=[
-        'Django >= 1.7, <1.9',
+        'Django == 1.11.20',
         'minio == 2.2.2',
     ],
     extras_require={
