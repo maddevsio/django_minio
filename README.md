@@ -27,4 +27,4 @@ So at local developer machine you will use django's default file storage.
 
 More information about file storages can be found at [Django Docs](https://docs.djangoproject.com/en/1.8/ref/files/storage/).
 
-Currently tested only at Django 1.8.5.
+Currently tested only at Django 2.0.
