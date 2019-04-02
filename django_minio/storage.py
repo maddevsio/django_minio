@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import mimetypes
 import os
 
@@ -6,7 +5,7 @@ from django.conf import settings
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 from minio import Minio
-from minio.error import InvalidXMLError, InvalidEndpointError,  NoSuchKey, NoSuchBucket
+from minio.error import InvalidXMLError, InvalidEndpointError, NoSuchKey, NoSuchBucket
 from urllib3.exceptions import MaxRetryError
 
 
@@ -42,19 +41,22 @@ class MinioStorage(Storage):
         return self._connection
 
     def _save(self, name, content):
-        pathname, ext = os.path.splitext(str(name.encode('utf-8')))
-        dir_path, file_name = os.path.split(pathname)
-        hashed_name = "{0}/{1}{2}".format(dir_path, hash(content), ext)
-        if hasattr(content, 'content_type'):
-            content_type = content.content_type
-        else:
-            content_type = mimetypes.guess_type(name.encode('utf-8'))[0]
+        pathname, ext = os.path.splitext(name)
+        dir_path, _ = os.path.split(pathname)
+        hashed_name = f'{dir_path}/{hash(content)}{ext}'
+
+        content_type = content.content_type if hasattr(content, 'content_type') else mimetypes.guess_type(name)[0]
+
         if self.connection:
             if not self.connection.bucket_exists(self.bucket):
                 self.connection.make_bucket(self.bucket)
             try:
                 self.connection.put_object(
-                    self.bucket, hashed_name, content, content.size, content_type=content_type
+                    self.bucket,
+                    hashed_name,
+                    content,
+                    content.size,
+                    content_type=content_type,
                 )
             except InvalidXMLError:
                 pass
@@ -66,22 +68,22 @@ class MinioStorage(Storage):
         if self.connection:
             try:
                 if self.connection.bucket_exists(self.bucket):
-                    return self.connection.presigned_get_object(self.bucket, name.encode('utf-8'))
+                    return self.connection.presigned_get_object(self.bucket, name)
                 else:
-                    return "image_not_found"  # TODO: Find a better way of returning errors
+                    return 'image_not_found'  # TODO: Find a better way of returning errors
             except MaxRetryError:
-                return "image_not_found"
-        return "could_not_establish_connection"
+                return 'image_not_found'
+        return 'could_not_establish_connection'
 
     def exists(self, name):
         try:
-            self.connection.stat_object(self.bucket, name.encode('utf-8'))
-            return True
+            self.connection.stat_object(self.bucket, name)
         except (NoSuchKey, NoSuchBucket):
             return False
         except Exception as err:
-            raise IOError("Could not stat file {0} {1}".format(name, err))
+            raise IOError(f'Could not stat file {name} {err}')
+        else:
+            return True
 
     def size(self, name):
-        info = self.connection.stat_object(self.bucket, name.encode('utf-8'))
-        return info.size
+        return self.connection.stat_object(self.bucket, name).size
